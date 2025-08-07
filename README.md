@@ -93,8 +93,8 @@ This is like having a group of friends who each read different books, then share
 
 **Start everything with one command**:
 ```bash
-python run_app.py
-```
+   python run_app.py
+   ```
 
 This automatically:
 1. Starts the coordination server
@@ -130,7 +130,7 @@ When you ask for recommendations for user #4, you might get:
     },
     {
       "movie_id": 100,
-      "movie_title": "Fargo (1996)", 
+      "movie_title": "Fargo (1996)",
       "predicted_rating": 4.1
     }
   ]
