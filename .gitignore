@@ -1,10 +1,18 @@
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-.Python
-*.h5  # Ignore trained model files
-*.env
-ml/  # Ignore virtual env if present
-global_model.h5
+
+# Python virtualenv
+ml/
+
+# Ignore dataset files
 ml-100k/
+
+# Ignore model weights
+*.h5
+global_model.h5
+
+# Environment variables
+.env
