@@ -1,90 +1,125 @@
-# Federated Movie Recommender
+# ZipSearch
 
-A privacy-preserving movie recommendation system built with federated learning. This project demonstrates how to train a neural network on the MovieLens 100k dataset across multiple clients without sharing raw data, aggregate the model centrally using Flower, and serve personalized recommendations via a FastAPI endpoint. It's designed for developers interested in federated AI, with GPU acceleration for faster training and human-readable outputs (e.g., movie titles instead of IDs).
+This is a movie recommendation system that suggests movies you might like based on what other people have rated, but with a twist: your personal data never leaves your device.
 
-This repo focuses on the code and logic—large datasets like MovieLens are not included (see Setup below). Built in Bengaluru during late-night coding sessions on August 07, 2025—perfect for exploring first-principles in ML privacy and API design!
+## The Problem This Solves
 
-## Features
+Traditional recommendation systems work by collecting everyone's movie ratings into one big database. Companies like Netflix know exactly what you've watched and when. This system does something different: it learns from everyone's preferences without anyone having to share their actual viewing history.
 
-- **Federated Learning**: Clients train locally on private data splits (e.g., user ratings), and the server averages model weights using FedAvg—ensuring data never leaves the client.
-- **GPU Acceleration**: Leverages NVIDIA GPUs with CUDA for faster training (tested on GTX 1050 Ti with CUDA 12.2).
-- **Normalized Inputs**: User and movie IDs are scaled to prevent bias toward high-numbered items, leading to more accurate predictions.
-- **API Endpoint**: `/recommend?user_id=&n=` returns top N movie suggestions with titles, IDs, and predicted ratings (scaled 1–5, rounded to 1 decimal place, filtered above a 2.0 threshold).
-- **Readable Outputs**: Maps movie IDs to titles from `u.item` for user-friendly results (e.g., "Star Wars (1977)" instead of ID 50).
-- **One-Command Launch**: `python run_app.py` starts the Flower server, clients, and FastAPI—all in one go.
-- **Customizable**: Easy to tweak epochs, thresholds, or add features like genres.
+Think of it like this: imagine you and your friends want to create a shared "best movies" list, but nobody wants to reveal which specific movies they've watched. This system lets you do exactly that.
 
-## Prerequisites
+## How It Actually Works
 
-- **Python**: 3.12 or higher (install from [python.org](https://www.python.org/)).
-- **Libraries**: 
-  - flwr (for federated learning)
-  - tensorflow (for model training, with GPU support)
-  - fastapi and uvicorn (for the API server)
-  - pandas and numpy (for data handling)
-- **Dataset**: MovieLens 100k (download from [grouplens.org](https://grouplens.org/datasets/movielens/100k/)—unzip to `ml-100k/` in the project root).
-- **Hardware (Optional)**: NVIDIA GPU with CUDA 12.2+ for accelerated training.
-- **Tools**: Git for cloning, a terminal for running commands.
+### The Privacy Protection (Why "Federated Learning")
 
-**Note**: The `ml-100k` dataset and any virtual environments (e.g., `ml/`) are ignored in `.gitignore` to keep the repo lightweight. Download the dataset separately.
+Instead of sending your movie ratings to a central server, the system works like this:
 
-## Installation
+1. **Your data stays on your device**: Your movie ratings never leave your computer
+2. **Only the "learning" gets shared**: Your device learns patterns from your ratings and shares only those patterns (not the actual ratings)
+3. **Everyone's patterns get combined**: A central coordinator combines everyone's learned patterns into one smart recommendation system
+4. **You get recommendations**: The combined system can suggest movies without ever knowing what you specifically rated
 
-1. Clone the repository:
-   ```
+This is like having a group of friends who each read different books, then share only their "reading preferences" (not which specific books they read) to help everyone find new books they'd enjoy.
+
+### The Technical Pieces
+
+**The Brain (Neural Network)**:
+- A simple artificial brain that learns to predict movie ratings
+- Takes in a user ID and movie ID, outputs a predicted rating (1-5 stars)
+- Uses two layers: one that finds patterns, one that makes the final prediction
+
+**The Data (MovieLens Dataset)**:
+- 100,000 real movie ratings from 943 users rating 1,682 movies
+- Each rating tells us: which user, which movie, what rating (1-5), when
+- We split this data between two "virtual users" to simulate the privacy-preserving setup
+
+**The Coordination (Flower Framework)**:
+- Manages the privacy-preserving learning process
+- Ensures multiple devices can train together without sharing raw data
+- Combines everyone's learning into one final recommendation system
+
+**The Interface (FastAPI)**:
+- A web service that lets you ask for movie recommendations
+- You provide a user ID, it returns movie suggestions with predicted ratings
+- Includes actual movie titles (like "Star Wars") instead of just numbers
+
+### Why This Approach Matters
+
+**Privacy**: Your viewing history stays private, but you still benefit from everyone else's preferences
+
+**Accuracy**: The system learns from a diverse group of people, making better recommendations than just looking at your own history
+
+**Scalability**: This could work with millions of users without creating a privacy nightmare
+
+**Real-world relevance**: This is how future recommendation systems might work as privacy becomes more important
+
+## What You Need to Run This
+
+**Software**:
+- Python 3.12+ (the programming language everything is written in)
+- Several Python libraries for machine learning and web services
+- The MovieLens dataset (100k movie ratings - you download this separately)
+
+**Hardware**:
+- Any modern computer (GPU optional but makes training faster)
+- About 2GB of free space for the dataset and libraries
+
+**Time**: About 10 minutes to set up, 2 minutes to run
+
+## Setting It Up
+
+1. **Get the code**:
+   ```bash
    git clone https://github.com/sivaratrisrinivas/zipsearch.git
    cd zipsearch
    ```
 
-2. (Optional) Create and activate a virtual environment:
-   ```
+2. **Create an isolated environment** (recommended):
+   ```bash
    python -m venv ml
    source ml/bin/activate  # On Windows: ml\Scripts\activate
    ```
 
-3. Install dependencies:
-   ```
+3. **Install the required libraries**:
+   ```bash
    pip install flwr tensorflow fastapi uvicorn pandas numpy
    ```
 
-4. Download and prepare the dataset:
-   - Get `ml-100k.zip` from [grouplens.org](https://grouplens.org/datasets/movielens/100k/).
-   - Unzip it into the project root (you should have `ml-100k/u.data` and `ml-100k/u.item`).
+4. **Get the movie data**:
+   - Download ml-100k.zip from [MovieLens](https://grouplens.org/datasets/movielens/100k/)
+   - Unzip it into your project folder so you have `ml-100k/u.data` and `ml-100k/u.item`
 
-## How to Run
+## Running the System
 
-1. Start the application (launches Flower server/clients and FastAPI):
-   ```
-   python run_app.py
-   ```
-   - This will:
-     - Start the federated training (clients learn on data splits).
-     - Aggregate and save the global model (`global_model.h5`).
-     - Run the API server at http://127.0.0.1:8000.
-
-2. Open your browser and go to http://127.0.0.1:8000/docs for the interactive API docs.
-
-3. Test the endpoint (e.g., via browser or curl):
-   ```
-   curl "http://127.0.0.1:8000/recommend?user_id=4&n=5"
-   ```
-
-4. Stop the app: Press Ctrl+C in the terminal.
-
-**Expected Logs**: You'll see GPU config messages, training progress (e.g., loss values), and "Uvicorn running on http://127.0.0.1:8000".
-
-## Usage
-
-The core API is `/recommend`, which generates personalized movie suggestions based on the federated model.
-
-- **Endpoint**: `GET /recommend`
-- **Parameters**:
-  - `user_id` (int): The user to recommend for (e.g., 4).
-  - `n` (int, optional): Number of recommendations (default 5, max 20).
-- **Response**: JSON with user_id and a list of recommendations (movie_id, movie_title, predicted_rating rounded to 1 decimal).
-
-**Example Response**:
+**Start everything with one command**:
+```bash
+python run_app.py
 ```
+
+This automatically:
+1. Starts the coordination server
+2. Creates two virtual users with private data
+3. Trains the recommendation system using privacy-preserving learning
+4. Starts a web service for getting recommendations
+
+**Test it out**:
+- Open http://127.0.0.1:8000/docs in your browser for an interactive interface
+- Or test directly: `curl "http://127.0.0.1:8000/recommend?user_id=4&n=5"`
+
+**Stop it**: Press Ctrl+C in your terminal
+
+## What You'll See
+
+The system will output logs showing:
+- GPU setup (if you have one)
+- Training progress from each virtual user
+- The web service starting up
+- A saved file called `global_model.h5` containing the final recommendation system
+
+## Example Results
+
+When you ask for recommendations for user #4, you might get:
+```json
 {
   "user_id": 4,
   "recommendations": [
@@ -95,42 +130,50 @@ The core API is `/recommend`, which generates personalized movie suggestions bas
     },
     {
       "movie_id": 100,
-      "movie_title": "Fargo (1996)",
+      "movie_title": "Fargo (1996)", 
       "predicted_rating": 4.1
-    },
-    ...
+    }
   ]
 }
 ```
 
-**Notes**:
-- Ratings are predicted on a 1–5 scale (like MovieLens) and filtered to show only those ≥2.0.
-- If predictions are low/uniform, increase training epochs in `app.py` for better accuracy.
+## Why Each Technical Choice Was Made
 
-## Architecture Overview
+**Why split the data between clients?**: This simulates real-world usage where different people have different viewing histories
 
-- **Data Flow**: Load and split MovieLens ratings → Normalize IDs → Train local models on clients.
-- **Federated Learning**: Flower clients (`SimpleClient`) fit models on private data; server aggregates via FedAvg.
-- **Model**: Simple Keras neural net with dense layers, sigmoid output scaled to 1–5.
-- **API**: FastAPI serves the global model for inference, mapping IDs to titles.
-- **Async Launch**: asyncio runs server, clients, and Uvicorn concurrently.
+**Why normalize the IDs?**: Movie ID 1500 isn't inherently "bigger" than movie ID 15 - we scale them so the AI doesn't get confused
 
-From first principles: This breaks down recommendation into atomic parts—privacy via federation, learning via backprop, serving via HTTP—to build a scalable system.
+**Why use a simple neural network?**: Complex models need more data and are harder to debug - this simple approach works well for demonstration
 
-## Contributing and Improvements
+**Why filter ratings below 2.0?**: Nobody wants recommendations for movies predicted to be terrible
 
-- **Future Ideas**:
-  - Add movie genres/years from `u.item` to recommendations.
-  - Support more clients or larger datasets (e.g., MovieLens 1M).
-  - Integrate embeddings for user/movie IDs to boost accuracy.
-  - Deploy to cloud (e.g., Docker + AWS/Heroku).
+**Why round ratings to 1 decimal?**: Fake precision (4.23847 stars) looks silly - 4.2 stars is clear and honest
 
-- **How to Contribute**:
-  1. Fork the repo.
-  2. Create a branch: `git checkout -b feature/new-thing`.
-  3. Commit changes: `git commit -m "Add new feature"`.
-  4. Push: `git push origin feature/new-thing`.
-  5. Open a Pull Request.
+**Why use async/await throughout?**: The system runs multiple processes simultaneously (training, coordination, web service) - async makes this clean and efficient
 
-Feel free to open issues for bugs or ideas!
+## The Files Explained
+
+**`app.py`**: The main application containing the AI model, privacy-preserving training, and web service
+
+**`run_app.py`**: A helper script that starts all the pieces in the right order with proper timing
+
+**`ml-100k/`**: The movie ratings dataset (you download this)
+
+**`.gitignore`**: Tells git to ignore large files like datasets and trained models
+
+**`global_model.h5`**: The final trained recommendation system (created when you run the app)
+
+## What You Could Build Next
+
+**More realistic simulation**: Add more virtual users with different preferences
+
+**Better recommendations**: Include movie genres, release years, and user demographics
+
+**Real deployment**: Package this for cloud deployment where real users could connect
+
+**Enhanced privacy**: Add techniques like differential privacy for even stronger privacy guarantees
+
+**Mobile app**: Build a phone app that connects to this privacy-preserving system
+
+This project demonstrates that you can build useful AI systems without sacrificing privacy - something that's becoming increasingly important as data collection practices come under scrutiny.
 
