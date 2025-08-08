@@ -1,5 +1,9 @@
 import asyncio
+import os
+import urllib.request
+import zipfile
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 import flwr as fl
 from flwr.server.strategy import FedAvg
 import numpy as np
@@ -7,8 +11,6 @@ import uvicorn
 import pandas as pd
 from tensorflow import keras
 import tensorflow as tf
-import os
-from fastapi.staticfiles import StaticFiles
 
 # Safe GPU setup
 gpus = tf.config.list_physical_devices('GPU')
@@ -20,9 +22,47 @@ if gpus:
     except RuntimeError as e:
         print(f"GPU config error: {e} - Using CPU.")
 
+def download_movielens_data():
+    """Download and extract MovieLens 100k dataset if not present"""
+    data_dir = 'ml-100k'
+    data_file = os.path.join(data_dir, 'u.data')
+    
+    if os.path.exists(data_file):
+        print("✅ MovieLens dataset already exists!")
+        return
+    
+    print("📥 Downloading MovieLens 100k dataset...")
+    url = "http://files.grouplens.org/datasets/movielens/ml-100k.zip"
+    zip_path = "ml-100k.zip"
+    
+    try:
+        # Download the dataset
+        urllib.request.urlretrieve(url, zip_path)
+        print("✅ Dataset downloaded!")
+        
+        # Extract the zip file
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall('.')
+        
+        # Clean up
+        os.remove(zip_path)
+        print("✅ Dataset extracted and ready!")
+        
+    except Exception as e:
+        print(f"❌ Error downloading dataset: {e}")
+        # Create minimal dummy data for demo
+        os.makedirs(data_dir, exist_ok=True)
+        dummy_data = "1\t1\t5\t881250949\n2\t1\t4\t881250949\n1\t2\t3\t881250949\n"
+        with open(data_file, 'w') as f:
+            f.write(dummy_data)
+        print("⚠️ Using minimal dummy data for demo")
+
 app = FastAPI()
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# Download dataset if needed
+download_movielens_data()
 
 # Load MovieLens data
 ratings = pd.read_csv('ml-100k/u.data', sep='\t', names=['user', 'item', 'rating', 'timestamp'])
@@ -46,11 +86,18 @@ x2, y2 = get_normalized_inputs(data_client2)
 
 # Load movie_id => movie_title dictionary
 movie_titles = {}
-with open('ml-100k/u.item', encoding='latin-1') as f:
-    for line in f:
-        parts = line.strip().split('|')
-        if parts and parts[0].isdigit():
-            movie_titles[int(parts[0])] = parts[1]
+try:
+    with open('ml-100k/u.item', encoding='latin-1') as f:
+        for line in f:
+            parts = line.strip().split('|')
+            if parts and parts[0].isdigit():
+                movie_titles[int(parts[0])] = parts[1]
+    print(f"✅ Loaded {len(movie_titles)} movie titles!")
+except FileNotFoundError:
+    print("⚠️ Movie titles file not found, using generic titles")
+    # Create dummy movie titles for the ratings we have
+    for movie_id in ratings['item'].unique():
+        movie_titles[movie_id] = f"Movie #{movie_id}"
 
 def get_model():
     model = tf.keras.Sequential([
