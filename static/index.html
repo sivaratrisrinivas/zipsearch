@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZipSearch · AI Movie Discovery</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Ambient background effects -->
+    <div class="ambient-bg">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+    </div>
+
+    <!-- Noise texture overlay -->
+    <div class="noise"></div>
+
+    <div class="app-container">
+        <!-- Header with animated logo -->
+        <header class="header">
+            <div class="logo-container">
+                <div class="logo-glow"></div>
+                <h1 class="logo">
+                    <span class="logo-icon">⚡</span>
+                    <span class="logo-text">ZipSearch</span>
+                </h1>
+            </div>
+            <p class="subtitle">Privacy-first AI recommendations</p>
+        </header>
+
+        <!-- Main interaction area -->
+        <main class="main">
+            <div class="glass-card input-section">
+                <!-- Floating label input -->
+                <div class="input-group">
+                    <input type="number" id="user-id" class="modern-input" placeholder=" " min="1" autocomplete="off"
+                        required>
+                    <label for="user-id" class="floating-label">User ID</label>
+                    <div class="input-highlight"></div>
+                </div>
+
+                <!-- Quick select chips -->
+                <div class="quick-select">
+                    <span class="quick-label">Quick try:</span>
+                    <button class="chip" data-id="1">1</button>
+                    <button class="chip" data-id="4">4</button>
+                    <button class="chip" data-id="10">10</button>
+                    <button class="chip" data-id="25">25</button>
+                </div>
+
+                <!-- Modern slider with value bubble -->
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span>Recommendations</span>
+                        <div class="slider-value-bubble" id="value-bubble">
+                            <span id="n-value">5</span>
+                        </div>
+                    </div>
+                    <div class="slider-track">
+                        <input type="range" id="n-slider" class="modern-slider" min="1" max="20" value="5">
+                        <div class="slider-progress" id="slider-progress"></div>
+                    </div>
+                </div>
+
+                <!-- Animated button -->
+                <button id="get-recs" class="cta-button">
+                    <span class="button-content">
+                        <span class="btn-text">Discover Movies</span>
+                        <svg class="btn-arrow" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M7 10H13M13 10L10 7M13 10L10 13" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </span>
+                    <div class="button-glow"></div>
+                    <div class="loading-state">
+                        <div class="pulse-loader">
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                        </div>
+                    </div>
+                </button>
+            </div>
+
+            <!-- Results section -->
+            <div id="results-wrapper" class="results-wrapper">
+                <div id="results" class="results-grid"></div>
+            </div>
+
+            <!-- Empty state -->
+            <div id="empty-state" class="empty-state hidden">
+                <div class="empty-icon">🎬</div>
+                <h3>Ready to discover?</h3>
+                <p>Enter a user ID to get personalized recommendations</p>
+            </div>
+        </main>
+
+        <!-- Footer with theme toggle -->
+        <footer class="footer">
+            <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+                <svg class="sun-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <circle cx="10" cy="10" r="5" stroke="currentColor" stroke-width="2" />
+                    <path
+                        d="M10 1V3M10 17V19M19 10H17M3 10H1M16.36 3.64L15 5M5 15L3.64 16.36M16.36 16.36L15 15M5 5L3.64 3.64"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                </svg>
+                <svg class="moon-icon hidden" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M8 2C8 2 10 6 10 10C10 14 8 18 8 18C12.418 18 16 14.418 16 10C16 5.582 12.418 2 8 2Z"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </button>
+        </footer>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+
+</html>

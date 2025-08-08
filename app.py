@@ -8,6 +8,7 @@ import pandas as pd
 from tensorflow import keras
 import tensorflow as tf
 import os
+from fastapi.staticfiles import StaticFiles
 
 # Safe GPU setup
 gpus = tf.config.list_physical_devices('GPU')
@@ -20,6 +21,8 @@ if gpus:
         print(f"GPU config error: {e} - Using CPU.")
 
 app = FastAPI()
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Load MovieLens data
 ratings = pd.read_csv('ml-100k/u.data', sep='\t', names=['user', 'item', 'rating', 'timestamp'])
