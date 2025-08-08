@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
         emptyState.classList.add('hidden');
         
         try {
-            const response = await fetch(`http://127.0.0.1:8000/recommend?user_id=${userId}&n=${n}`);
+            const response = await fetch(`/recommend?user_id=${userId}&n=${n}`);
             const data = await response.json();
             
             if (data.recommendations && data.recommendations.length > 0) {
