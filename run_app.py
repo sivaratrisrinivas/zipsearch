@@ -32,7 +32,7 @@ if __name__ == "__main__":
     # Step 4: Start FastAPI (playground doors) in main process
     print("Starting FastAPI—visit http://127.0.0.1:8000/static/index.html!")
     port = os.environ.get("PORT", "8000")
-    host = os.environ.get("HOST", "127.0.0.1")
+    host = os.environ.get("HOST", "0.0.0.0")  # Bind to all interfaces for Render
     run_command(f"{PYTHON} -m uvicorn app:app --host {host} --port {port}")
     
     # Cleanup (when you Ctrl+C)
