@@ -115,7 +115,7 @@ MIN_RATING_THRESHOLD = 2.0  # Only show recommendations above this rating
 
 @app.get("/")
 async def root():
-    return {"message": "Welcome! See /docs for API usage."}
+    return {"message": "Welcome to ZipSearch! Visit /static/index.html for the interface or /docs for API usage."}
 
 @app.get("/recommend")
 def recommend(user_id: int, n: int = 5):

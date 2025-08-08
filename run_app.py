@@ -1,6 +1,7 @@
 import subprocess
 import time
 import sys
+import os
 
 # Paths to Python (auto-uses your current one)
 PYTHON = sys.executable
@@ -29,8 +30,10 @@ if __name__ == "__main__":
     time.sleep(10)  # Wait for learning round
     
     # Step 4: Start FastAPI (playground doors) in main process
-    print("Starting FastAPI—visit http://127.0.0.1:8000!")
-    run_command(f"{PYTHON} -m uvicorn app:app --host 127.0.0.1 --port 8000")
+    print("Starting FastAPI—visit http://127.0.0.1:8000/static/index.html!")
+    port = os.environ.get("PORT", "8000")
+    host = os.environ.get("HOST", "127.0.0.1")
+    run_command(f"{PYTHON} -m uvicorn app:app --host {host} --port {port}")
     
     # Cleanup (when you Ctrl+C)
     print("Shutting down...")
